@@ -18,6 +18,7 @@ BOOT_DIR=${ROOT_DIR}/boot
 NO_DELETE=
 NO_CLEAN=
 
+ARM_ARCH=
 
 
 #
@@ -34,6 +35,17 @@ function cleanup()
         if [ "${DOWNLOAD_DIR}" != "" -a -d ${DOWNLOAD_DIR} ] ; then
             rm -rf ${DOWNLOAD_DIR}
         fi
+    fi
+}
+
+
+function check_arch()
+{
+    local local_arch=$(uname -a |grep arm)
+
+    if [ "${local_arch}" != "" ]
+        ARM_ARCH=1
+        echo "arm arch detected"
     fi
 }
 
@@ -89,9 +101,13 @@ function umount_image()
 function update_image()
 {
     if [ -d "${ROOT_DIR}/usr/bin" ] ; then
-        cp /usr/bin/qemu-arm-static "${ROOT_DIR}/usr/bin"
+
+        if [ "${ARM_ARCH}" == "" ]; then
+            cp /usr/bin/qemu-arm-static "${ROOT_DIR}/usr/bin"
+        fi
         cp install.sh ${ROOT_DIR}/tmp
         chroot ${ROOT_DIR} /tmp/install.sh
+        rm -rf ${ROOT_DIR}/var/cache/apt
     fi
 }
 
@@ -101,6 +117,8 @@ function export_image()
         zip vigimage.zip ${RASPBIAN_IMG}
     fi
 }
+
+check_arch
 
 for i in $@ ; do
     case "${1}" in
