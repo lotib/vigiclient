@@ -43,7 +43,7 @@ function check_arch()
 {
     local local_arch=$(uname -a |grep arm)
 
-    if [ "${local_arch}" != "" ]
+    if [ "${local_arch}" != "" ] ; then
         ARM_ARCH=1
         echo "arm arch detected"
     fi
